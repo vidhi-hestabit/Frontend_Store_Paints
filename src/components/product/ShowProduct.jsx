@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import AppContext from '../../Context/AppContext';
+import AppContext from '../../context/AppContext';
 import { Link } from "react-router-dom";
 
 const ShowProduct = () => {

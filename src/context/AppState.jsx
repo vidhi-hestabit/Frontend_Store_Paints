@@ -10,7 +10,7 @@ const AppState = (props) => {
     const url = "https://paintstore.onrender.com/api"
     const [products, setProducts] = useState([]);
     const [token, setToken] = useState([]);
-    const [isAuthenticated, setIsAuthenticated] = useState([false]);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [filteredData, setFilteredData] = useState([]);
     const [user, setUser] = useState();
     const [cart, setCart] = useState([]);
@@ -40,14 +40,14 @@ const AppState = (props) => {
 
 
     useEffect(() => {
-
-        let lstoken = localStorage.getItem('token')
-        // console.log("ls token", lstoken)
-
-        setToken(lstoken);
-        setIsAuthenticated(true)
-    }, [])
-
+        const lstoken = localStorage.getItem('token');
+        if (lstoken) {  // Add this check
+            setToken(lstoken);
+            setIsAuthenticated(true);
+        } else {
+            setIsAuthenticated(false);
+        }
+    }, []);
 
 
 

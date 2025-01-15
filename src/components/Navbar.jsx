@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import AppContext from '../Context/AppContext';
+import AppContext from '../context/AppContext';
 
 const Navbar = () => {
     const [searchTerm, setSearchTerm] = useState('');

@@ -10,10 +10,10 @@ const Cart = () => {
 
     const navigate = useNavigate();
 
-    useEffect(() => {
+    useEffect(() =>{
         let qty = 0;
         let price = 0;
-        if (cart?.items) {
+        if (cart?.items){
             for (let i = 0; i < cart.items?.length; i++) {
                 qty += cart.items[i].qty;
                 price += cart.items[i].price;
