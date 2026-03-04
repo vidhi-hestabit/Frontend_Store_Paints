@@ -16,6 +16,7 @@ import Cart from './components/Cart.jsx';
 import Address from './components/Address.jsx';
 import Checkout from './components/Checkout.jsx';
 import OrderConfirmation from './components/OrderConfirmation.jsx';
+import Chatbot from './components/Chatbot.jsx';
 
 const App = () => {
     return (
@@ -23,6 +24,8 @@ const App = () => {
             <Router>
                 <Navbar />
                 <ToastContainer />
+                <Chatbot />
+
                 <Routes>
                     <Route path="/" element={<ShowProduct />} />
                     <Route path="/product/search/:term" element={<SearchProduct />} />
