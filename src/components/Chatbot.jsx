@@ -61,7 +61,7 @@ const Chatbot = () => {
         setLoading(true);
 
         try {
-            const res = await fetch(`http://localhost:5000/api/chat/message`, {
+            const res = await fetch(`https://paint-store-alpha.vercel.app/api/chat/message`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

@@ -8,7 +8,7 @@ const ProductDetail = () => {
     const [product, setProduct] = useState({});
     const { id } = useParams();
     const { addToCart } = useContext(AppContext);
-    const url = "https://paintstore.onrender.com/api";
+    const url = "https://paint-store-alpha.vercel.app/api";
 
     useEffect(() => {
         const fetchProduct = async () => {
