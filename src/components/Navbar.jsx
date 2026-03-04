@@ -1,38 +1,165 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useRef, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import AppContext from '../context/AppContext';
+import { useTheme } from '../context/ThemeContext';
+
+const categories = [
+    { label: 'All', value: 'all', icon: '🎨' },
+    { label: 'Brushes', value: 'Brush', icon: '🖌️' },
+    { label: 'Stainer', value: 'Stainer', icon: '🪣' },
+    { label: 'Exterior', value: 'Exterior', icon: '🏠' },
+    { label: 'Interior', value: 'Interior', icon: '🛋️' },
+    { label: 'Primer', value: 'Primer', icon: '🧴' },
+    { label: 'Distemper', value: 'Distemper', icon: '🌫️' },
+    { label: 'Stencils', value: 'Stensils', icon: '✨' },
+    { label: 'Emulsion', value: 'Emulsion', icon: '💧' },
+];
 
 const Navbar = () => {
     const [searchTerm, setSearchTerm] = useState('');
-
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [activeCategory, setActiveCategory] = useState('all');
+    const [searchFocused, setSearchFocused] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
     const { setFilteredData, products, logout, isAuthenticated, cart } = useContext(AppContext);
+    const { theme, toggleTheme } = useTheme();
+    const menuRef = useRef(null);
+
+    useEffect(() => {
+        const handler = (e) => {
+            if (menuRef.current && !menuRef.current.contains(e.target)) {
+                setMobileMenuOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handler);
+        return () => document.removeEventListener('mousedown', handler);
+    }, []);
+
+    useEffect(() => {
+        setMobileMenuOpen(false);
+    }, [location.pathname]);
 
     const filterByCategory = (cat) => {
-        setFilteredData(
-            products.filter(
-                (data) => data.category.toLowerCase() === cat.toLowerCase()
-            )
-        );
+        setActiveCategory(cat.value);
+        if (cat.value === 'all') {
+            setFilteredData(products);
+        } else {
+            setFilteredData(products.filter(d => d.category.toLowerCase() === cat.value.toLowerCase()));
+        }
     };
 
     const submitHandler = (e) => {
         e.preventDefault();
         if (searchTerm.trim()) {
             navigate(`/product/search/${searchTerm}`);
+            setSearchTerm('');
         }
     };
 
+    const cartCount = cart?.items?.length || 0;
+
     return (
-        <>
-            <div className="nav sticky-top">
-                <div className="nav_bar">
-                    <Link to="/" className="left" style={{ textDecoration: 'none', color: 'white' }}>
-                        <h3>Ajmera Paints</h3>
-                    </Link>
-                    <form className="search_bar" onSubmit={submitHandler}>
-                        <span className="material-symbols-outlined">search</span>
+        <nav className="navbar-root sticky-top" ref={menuRef}>
+            <div className="navbar-main">
+                <Link to="/" className="navbar-brand">
+                    <div className="navbar-brand-icon">🎨</div>
+                    <div className="navbar-brand-text">
+                        <span className="brand-name">Ajmera</span>
+                        <span className="brand-sub">Paints</span>
+                    </div>
+                </Link>
+
+                <form className={`navbar-search ${searchFocused ? 'focused' : ''}`} onSubmit={submitHandler}>
+                    <span className="material-symbols-outlined search-icon">search</span>
+                    <input
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        onFocus={() => setSearchFocused(true)}
+                        onBlur={() => setSearchFocused(false)}
+                        type="text"
+                        placeholder="Search paints, brushes, primers..."
+                    />
+                    {searchTerm && (
+                        <button type="button" className="search-clear" onClick={() => setSearchTerm('')}>
+                            <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>close</span>
+                        </button>
+                    )}
+                </form>
+
+                <div className="navbar-actions">
+                    <button
+                        className="theme-toggle"
+                        onClick={toggleTheme}
+                        title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+                    >
+                        <span className="theme-toggle-track">
+                            <span className="theme-toggle-thumb">
+                                {theme === 'light' ? '☀️' : '🌙'}
+                            </span>
+                        </span>
+                    </button>
+
+                    {isAuthenticated ? (
+                        <>
+                            <Link to="/cart" className="navbar-cart-btn">
+                                <span className="material-symbols-outlined" style={{ fontSize: '1.2rem' }}>shopping_cart</span>
+                                <span className="navbar-cart-label">Cart</span>
+                                {cartCount > 0 && (
+                                    <span className="cart-badge">{cartCount}</span>
+                                )}
+                            </Link>
+                            <Link to="/profile" className="navbar-icon-btn profile-btn" title="Profile">
+                                <span className="material-symbols-outlined" style={{ fontSize: '1.2rem' }}>account_circle</span>
+                            </Link>
+                            <button
+                                className="navbar-logout-btn"
+                                onClick={() => { logout(); navigate('/'); }}
+                            >
+                                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>logout</span>
+                                <span>Logout</span>
+                            </button>
+                        </>
+                    ) : (
+                        <>
+                            <Link to="/about" className="navbar-link-subtle">About</Link>
+                            <Link to="/contact" className="navbar-link-subtle">Contact</Link>
+                            <Link to="/login" className="navbar-btn-ghost">Login</Link>
+                            <Link to="/register" className="navbar-btn-solid">Register</Link>
+                        </>
+                    )}
+
+                    <button
+                        className="navbar-hamburger"
+                        onClick={() => setMobileMenuOpen(o => !o)}
+                        aria-label="Menu"
+                    >
+                        <span className={`ham-line ${mobileMenuOpen ? 'open' : ''}`}></span>
+                        <span className={`ham-line ${mobileMenuOpen ? 'open' : ''}`}></span>
+                        <span className={`ham-line ${mobileMenuOpen ? 'open' : ''}`}></span>
+                    </button>
+                </div>
+            </div>
+
+            {location.pathname === '/' && (
+                <div className="navbar-categories">
+                    {categories.map((cat) => (
+                        <button
+                            key={cat.value}
+                            className={`cat-chip ${activeCategory === cat.value ? 'active' : ''}`}
+                            onClick={() => filterByCategory(cat)}
+                        >
+                            <span className="cat-icon">{cat.icon}</span>
+                            {cat.label}
+                        </button>
+                    ))}
+                </div>
+            )}
+
+            {mobileMenuOpen && (
+                <div className="navbar-mobile-menu">
+                    <form className="mobile-search" onSubmit={submitHandler}>
+                        <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--text-muted)' }}>search</span>
                         <input
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
@@ -40,63 +167,42 @@ const Navbar = () => {
                             placeholder="Search products..."
                         />
                     </form>
-                    <div className="right">
-                        {isAuthenticated ? (
-                            <>
-                                <Link
-                                    to={"/cart"}
-                                    type="button"
-                                    className="btn btn-primary position-relative mx-3"
-                                >
-                                    <span className="material-symbols-outlined">
-                                        shopping_cart
-                                    </span>
 
-                                    {cart?.items?.length > 0 && (
-                                        <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                                            {cart?.items?.length}
-                                            <span className="visually-hidden">unread messages</span>
-                                        </span>
-                                    )}
-                                </Link>
-                                <Link to='/profile' className="btn btn-primary mx-2">Profile</Link>
-                                <button
-                                    className="btn btn-danger mx-2"
-                                    onClick={() => {
-                                        logout();
-                                        navigate('/');
-                                    }}
-                                >
-                                    Logout
-                                </button>
-                            </>
-                        ) : (
-                            <>
-                                <Link to="/login" className="btn btn-primary mx-2">Login</Link>
-                                <Link to="/register" className="btn btn-primary mx-2">Register</Link>
-                                <Link to="/about" className="btn btn-info mx-2">About Us</Link>
-                                <Link to="/contact" className="btn btn-info mx-2">Contact Us</Link>
-                            </>
-                        )}
+                    {isAuthenticated ? (
+                        <div className="mobile-nav-links">
+                            <Link to="/cart" className="mobile-nav-link">
+                                🛒 Cart {cartCount > 0 && <span className="mobile-badge">{cartCount}</span>}
+                            </Link>
+                            <Link to="/profile" className="mobile-nav-link">👤 Profile</Link>
+                            <button className="mobile-nav-link mobile-logout" onClick={() => { logout(); navigate('/'); }}>
+                                🚪 Logout
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="mobile-nav-links">
+                            <Link to="/login" className="mobile-nav-link">🔑 Login</Link>
+                            <Link to="/register" className="mobile-nav-link">✨ Register</Link>
+                            <Link to="/about" className="mobile-nav-link">ℹ️ About</Link>
+                            <Link to="/contact" className="mobile-nav-link">📞 Contact</Link>
+                        </div>
+                    )}
+
+                    <div className="mobile-theme-row">
+                        <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                            {theme === 'light' ? '☀️ Light mode' : '🌙 Dark mode'}
+                        </span>
+                        <button className="theme-toggle" onClick={toggleTheme}>
+                            <span className="theme-toggle-track">
+                                <span className="theme-toggle-thumb">
+                                    {theme === 'light' ? '☀️' : '🌙'}
+                                </span>
+                            </span>
+                        </button>
                     </div>
                 </div>
-
-                {location.pathname === '/' && (
-                    <div className="sub_bar">
-                        <div className="items" onClick={() => setFilteredData(products)}>No Filter</div>
-                        <div className="items" onClick={() => filterByCategory('Brush')}>Brushes</div>
-                        <div className="items" onClick={() => filterByCategory('Stainer')}>Stainer</div>
-                        <div className="items" onClick={() => filterByCategory('Exterior')}>Exterior</div>
-                        <div className="items" onClick={() => filterByCategory('Interior')}>Interior</div>
-                        <div className="items" onClick={() => filterByCategory('Primer')}>Primer</div>
-                        <div className="items" onClick={() => filterByCategory('Distemper')}>Distemper</div>
-                        <div className="items" onClick={() => filterByCategory('Stensils')}>Stensils</div>
-                        <div className="items" onClick={() => filterByCategory('Emulsion')}>Emulsion</div>
-                    </div>
-                )}
-            </div>
-        </>
+            )}
+        </nav>
     );
-}
+};
 
 export default Navbar;

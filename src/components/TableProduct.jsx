@@ -1,137 +1,61 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react';
 import AppContext from '../context/AppContext';
 
 const TableProduct = ({ cart }) => {
-    const { decreaseQty, addToCart, removeFromCart, clearCart } =
-        useContext(AppContext);
+    const { decreaseQty, addToCart, removeFromCart } = useContext(AppContext);
     const [qty, setQty] = useState(0);
     const [price, setPrice] = useState(0);
+
     useEffect(() => {
-        let qty = 0;
-        let price = 0;
+        let q = 0, p = 0;
         if (cart?.items) {
-            for (let i = 0; i < cart.items?.length; i++) {
-                qty += cart.items[i].qty;
-                price += cart.items[i].price;
-            }
+            cart.items.forEach(item => { q += item.qty; p += item.price; });
         }
-        setPrice(price);
-        setQty(qty);
+        setPrice(p);
+        setQty(q);
     }, [cart]);
 
-
     return (
-        <>
-            <table className="table table-bordered border-primary bg-dark text-center">
+        <div style={{ overflowX: 'auto' }}>
+            <table className="paint-table">
                 <thead>
                     <tr>
-                        <th scope="col" className="bg-dark text-light">
-                            Product Img
-                        </th>
-                        <th scope="col" className="bg-dark text-light">
-                            Title
-                        </th>
-                        <th scope="col" className="bg-dark text-light">
-                            Price
-                        </th>
-                        <th scope="col" className="bg-dark text-light">
-                            Qty
-                        </th>
-                        <th scope="col" className="bg-dark text-light">
-                            Qty++
-                        </th>
-                        <th scope="col" className="bg-dark text-light">
-                            Qty--
-                        </th>
-                        <th scope="col" className="bg-dark text-light">
-                            remove
-                        </th>
+                        <th>Image</th>
+                        <th>Product</th>
+                        <th>Price</th>
+                        <th>Qty</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     {cart?.items?.map((product) => (
                         <tr key={product._id}>
-                            <th scope="row" className="bg-dark text-light">
-                                <img
-                                    src={product.imgSrc}
-                                    style={{ width: "50px", height: "50px" }}
-                                />
-                            </th>
-                            <td className="bg-dark text-light">{product.title}</td>
-                            <td className="bg-dark text-light">{product.price}</td>
-                            <td className="bg-dark text-light">{product.qty}</td>
-                            <td className="bg-dark text-light">
-                                <span
-                                    className="material-symbols-outlined"
-                                    onClick={() =>
-                                        addToCart(
-                                            product?.productId,
-                                            product.title,
-                                            product.price / product.qty,
-                                            1,
-                                            product.imgSrc
-                                        )
-                                    }
-                                >
-                                    add_circle
-                                </span>
-                            </td>
-                            <td className="bg-dark text-light">
-                                <span
-                                    className="material-symbols-outlined"
-                                    onClick={() => decreaseQty(product?.productId, 1)}
-                                >
-                                    do_not_disturb_on
-                                </span>
-                            </td>
-                            <td className="bg-dark text-light">
-                                <span
-                                    className="material-symbols-outlined"
-                                    onClick={() => {
-                                        if (confirm("Are you sure, want remove from cart")) {
-                                            removeFromCart(product?.productId);
-                                        }
-                                    }}
-                                >
-                                    delete
-                                </span>
+                            <td><img src={product.imgSrc} alt={product.title} /></td>
+                            <td style={{ fontWeight: 600 }}>{product.title}</td>
+                            <td style={{ color: 'var(--primary)', fontWeight: 700 }}>₹{product.price}</td>
+                            <td>{product.qty}</td>
+                            <td>
+                                <div style={{ display: 'flex', gap: '0.4rem', justifyContent: 'center' }}>
+                                    <button className="qty-btn" onClick={() => decreaseQty(product?.productId, 1)}>−</button>
+                                    <button className="qty-btn" onClick={() => addToCart(product?.productId, product.title, product.price / product.qty, 1, product.imgSrc)}>+</button>
+                                    <button className="btn-paint-danger" style={{ padding: '0.3rem 0.6rem', fontSize: '0.78rem' }}
+                                        onClick={() => { if (confirm("Remove this item?")) removeFromCart(product?.productId); }}>
+                                        ✕
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     ))}
-
-                    <tr>
-                        <th scope="row" className="bg-dark text-light"></th>
-                        <td className="bg-dark text-light">
-                            {" "}
-                            <button
-                                className="btn btn-primary"
-                                style={{ fontWeight: "bold" }}
-                            >
-                                Total
-                            </button>{" "}
-                        </td>
-                        <td className="bg-dark text-light">
-                            {" "}
-                            <button
-                                className="btn btn-warning"
-                                style={{ fontWeight: "bold" }}
-                            >
-                                {price}
-                            </button>
-                        </td>
-                        <td className="bg-dark text-light">
-                            <button className="btn btn-info" style={{ fontWeight: "bold" }}>
-                                {qty}
-                            </button>
-                        </td>
-                        <td className="bg-dark text-light"></td>
-                        <td className="bg-dark text-light"></td>
-                        <td className="bg-dark text-light"></td>
+                    <tr className="tfoot-row">
+                        <td colSpan={2} style={{ fontWeight: 700, textAlign: 'right' }}>Total</td>
+                        <td style={{ color: 'var(--primary)', fontWeight: 700, fontFamily: 'Playfair Display, serif' }}>₹{price}</td>
+                        <td style={{ fontWeight: 700 }}>{qty}</td>
+                        <td></td>
                     </tr>
                 </tbody>
             </table>
-        </>
+        </div>
     );
 };
 
-export default TableProduct
+export default TableProduct;

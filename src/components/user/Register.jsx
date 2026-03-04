@@ -1,16 +1,11 @@
-import React, { useContext, useState } from "react";
-import AppContext from "../../context/AppContext";
-import { useNavigate } from "react-router-dom";
-
+import React, { useContext, useState } from 'react';
+import AppContext from '../../context/AppContext';
+import { useNavigate, Link } from 'react-router-dom';
 
 const Register = () => {
     const { register } = useContext(AppContext);
     const navigate = useNavigate();
-    const [formData, setFormData] = useState({
-        name: "",
-        email: "",
-        password: "",
-    });
+    const [formData, setFormData] = useState({ name: '', email: '', password: '' });
 
     const onChangeHandler = (e) => {
         const { name, value } = e.target;
@@ -20,76 +15,42 @@ const Register = () => {
     const submitHandler = async (e) => {
         e.preventDefault();
         const result = await register(formData.name, formData.email, formData.password);
-
-        if (result.success) {
-            navigate('/login');
-        } else {
-            // alert(result.message);
-        }
+        if (result.success) navigate('/login');
     };
 
     return (
-        <>
-            <div className="container my-5 p-4 register-container">
-                <div className="header-with-character">
-                    <div className="character">
-                        <img
-                            src="https://icon-library.com/images/find-icon-png/find-icon-png-20.jpg"
-                            alt="Register Character"
-                            className="character-img"
-                        />
-                    </div>
-                    <div className="speech-bubble">
-                        <h1 className="text-center">
-                            Register User
-                        </h1>
-                    </div>
+        <div style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem', background: 'var(--light)' }}>
+            <div className="paint-form-card" style={{ width: '100%' }}>
+                <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+                    <div style={{ width: '56px', height: '56px', background: 'var(--accent)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem', fontSize: '1.4rem' }}>✨</div>
+                    <h1 style={{ fontSize: '1.8rem', marginBottom: '0.35rem' }}>Create Account</h1>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '0.92rem' }}>Join the Ajmera Paints family today</p>
                 </div>
-                <form onSubmit={submitHandler} className='my-3'>
-                    <div className="mb-3">
-                        <label htmlFor="exampleInputName">Name</label>
-                        <input
-                            name="name"
-                            value={formData.name}
-                            onChange={onChangeHandler}
-                            type="text"
-                            className="form-control"
-                            id="exampleInputName"
-                            placeholder="Enter name"
-                        />
-                    </div>
 
-                    <div className="mb-3">
-                        <label htmlFor="exampleInputEmail1">Email</label>
-                        <input
-                            name="email"
-                            value={formData.email}
-                            onChange={onChangeHandler}
-                            type="email"
-                            className="form-control"
-                            id="exampleInputEmail1"
-                            placeholder="Enter email"
-                        />
+                <form onSubmit={submitHandler}>
+                    <div className="paint-form-group">
+                        <label className="paint-form-label">Full Name</label>
+                        <input name="name" value={formData.name} onChange={onChangeHandler} type="text" className="paint-form-input" placeholder="Your name" />
                     </div>
-
-                    <div className="mb-3">
-                        <label htmlFor="exampleInputPassword1">Password</label>
-                        <input
-                            name="password"
-                            value={formData.password}
-                            onChange={onChangeHandler}
-                            type="password"
-                            className="form-control"
-                            id="exampleInputPassword1"
-                            placeholder="Password"
-                        />
+                    <div className="paint-form-group">
+                        <label className="paint-form-label">Email Address</label>
+                        <input name="email" value={formData.email} onChange={onChangeHandler} type="email" className="paint-form-input" placeholder="you@example.com" />
                     </div>
-                    <div className="d-grid col-6 mx-auto my-3">
-                        <button type="submit" className="btn btn-primary">Register</button>
+                    <div className="paint-form-group">
+                        <label className="paint-form-label">Password</label>
+                        <input name="password" value={formData.password} onChange={onChangeHandler} type="password" className="paint-form-input" placeholder="••••••••" />
                     </div>
+                    <button type="submit" className="btn-paint-accent" style={{ width: '100%', padding: '0.75rem', fontSize: '1rem', marginTop: '0.5rem' }}>
+                        Create Account
+                    </button>
                 </form>
+
+                <p style={{ textAlign: 'center', marginTop: '1.5rem', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+                    Already have an account?{' '}
+                    <Link to="/login" style={{ color: 'var(--primary)', fontWeight: 600 }}>Sign in</Link>
+                </p>
             </div>
-        </>
+        </div>
     );
 };
 
