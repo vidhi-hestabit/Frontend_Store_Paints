@@ -61,7 +61,7 @@ const Chatbot = () => {
         setLoading(true);
 
         try {
-            const res = await fetch(`https://paintstore.onrender.com/api/chat/message`, {
+            const res = await fetch(`https://paint-store-alpha.vercel.app/api/chat/message`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
