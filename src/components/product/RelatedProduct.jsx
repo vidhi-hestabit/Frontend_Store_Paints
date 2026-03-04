@@ -1,67 +1,43 @@
-import React, { useContext, useState } from "react";
-import AppContext from "../../context/AppContext";
-import { useEffect } from "react";
-import { Link } from "react-router-dom";
+import React, { useContext, useState, useEffect } from 'react';
+import AppContext from '../../context/AppContext';
+import { Link } from 'react-router-dom';
 
 const RelatedProduct = ({ category }) => {
-    const { products } = useContext(AppContext);
-    const [realtedProduct, setRealtedProduct] = useState([]);
+    const { products, addToCart } = useContext(AppContext);
+    const [relatedProduct, setRelatedProduct] = useState([]);
+
     useEffect(() => {
-        setRealtedProduct(
-            products.filter(
-                (data) => data?.category?.toLowerCase() == category?.toLowerCase()
-            )
-        );
+        setRelatedProduct(products.filter(d => d?.category?.toLowerCase() === category?.toLowerCase()));
     }, [category, products]);
 
     return (
-        <>
-            <div className="container text-center">
-                <h1>Related Product</h1>
-                <div className="container  d-flex justify-content-center align-items-center">
-                    <div className="row container d-flex justify-content-center align-items-center my-5">
-                        {realtedProduct?.map((product) => (
-                            <div
-                                key={product._id}
-                                className="my-3 col-md-4 
-            d-flex justify-content-center align-items-center"
+        <div className="product-grid" style={{ padding: 0 }}>
+            {relatedProduct.map((product) => (
+                <div key={product._id} className="product-card">
+                    <Link to={`/product/${product._id}`} className="product-card-img-wrap">
+                        <img src={product.imgSrc} alt={product.title} />
+                    </Link>
+                    <div className="product-card-body">
+                        <p className="product-card-title">{product.title}</p>
+                        <p className="product-card-price">₹{product.price}</p>
+                        <div className="product-card-actions">
+                            <button
+                                className="btn-paint-accent"
+                                style={{ flex: 1, fontSize: '0.85rem', padding: '0.45rem 0.75rem' }}
+                                onClick={() => addToCart(product._id, product.title, product.price, 1, product.imgSrc)}
                             >
-                                <div
-                                    className="card bg-dark text-light text-center"
-                                    style={{ width: "18rem" }}
-                                >
-                                    <Link
-                                        to={`/product/${product._id}`}
-                                        className="d-flex justify-content-center align-items-center p-3"
-                                    >
-                                        <img
-                                            src={product.imgSrc}
-                                            className="card-img-top"
-                                            alt="..."
-                                            style={{
-                                                width: "200px",
-                                                height: "200px",
-                                                borderRadius: "10px",
-                                                border: "2px solid yellow",
-                                            }}
-                                        />
-                                    </Link>
-                                    <div className="card-body">
-                                        <h5 className="card-title">{product.title}</h5>
-                                        <div className="my-3">
-                                            <button className="btn btn-primary mx-3">
-                                                {product.price} {"₹"}
-                                            </button>
-                                            <button className="btn btn-warning">Add To Cart</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
+                                Add to Cart
+                            </button>
+                            <Link to={`/product/${product._id}`} style={{ flex: 1 }}>
+                                <button className="btn-paint-outline" style={{ width: '100%', fontSize: '0.85rem', padding: '0.45rem 0.75rem' }}>
+                                    View
+                                </button>
+                            </Link>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </>
+            ))}
+        </div>
     );
 };
 

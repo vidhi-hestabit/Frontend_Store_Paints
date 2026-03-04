@@ -1,25 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import axios from "axios";
+import axios from 'axios';
 import RelatedProduct from './RelatedProduct';
+import AppContext from '../../context/AppContext';
 
 const ProductDetail = () => {
-    const [product, setProduct] = useState({}); // Changed from [] to {}
-
+    const [product, setProduct] = useState({});
     const { id } = useParams();
-
-    const url = "http://localhost:1000/api";
+    const { addToCart } = useContext(AppContext);
+    const url = "https://paintstore.onrender.com/api";
 
     useEffect(() => {
         const fetchProduct = async () => {
             try {
                 const api = await axios.get(`${url}/product/${id}`, {
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
+                    headers: { "Content-Type": "application/json" },
                     withCredentials: true
                 });
-                setProduct(api.data.product); // Corrected to update state with a single product
+                setProduct(api.data.product);
             } catch (error) {
                 console.error("Error fetching the product:", error);
             }
@@ -29,42 +27,41 @@ const ProductDetail = () => {
 
     return (
         <>
-
-
-            <div
-                className="container text-center my-5"
-                style={{
-                    display: "flex",
-                    justifyContent: "space-evenly",
-                    alignItems: "center",
-                }}
-            >
-                <div className="left">
-                    <img
-                        src={product?.imgSrc}
-                        alt=""
-                        style={{ width: "250px", height: "250px", borderRadius: '10px', border: "2px solid blue" }}
-                    />
+            <div className="product-detail-page">
+                <div className="product-detail-img-wrap">
+                    <img src={product?.imgSrc} alt={product?.title} />
                 </div>
-                <div className="right">
+
+                <div className="product-detail-info">
+                    <p style={{ fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--primary)', fontWeight: 600, marginBottom: '0.5rem' }}>
+                        {product?.category}
+                    </p>
                     <h1>{product?.title}</h1>
                     <p>{product?.description}</p>
-                    <h1>
-                        {product?.price}{" "}
-                        {"₹"}
-                    </h1>
-
-                    {/* <h3>{product.category}</h3> */}
-                    <div className="my-5">
-                        <button className="btn btn-danger mx-3" style={{ fontWeight: 'bold' }}>Buy Now</button>
-                        <button className="btn btn-warning" style={{ fontWeight: 'bold' }}>Add To Cart</button>
+                    <div className="product-detail-price">
+                        ₹{product?.price} <span>/ unit</span>
+                    </div>
+                    <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                        <button
+                            className="btn-paint-primary"
+                            style={{ padding: '0.7rem 2rem', fontSize: '1rem' }}
+                            onClick={() => addToCart(product._id, product.title, product.price, 1, product.imgSrc)}
+                        >
+                            Add to Cart
+                        </button>
+                        <button className="btn-paint-outline" style={{ padding: '0.7rem 2rem', fontSize: '1rem' }}>
+                            Buy Now
+                        </button>
                     </div>
                 </div>
             </div>
 
-            <RelatedProduct category={product?.category} />
+            <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 2rem 3rem' }}>
+                <h2 className="section-title">Related Products</h2>
+                <RelatedProduct category={product?.category} />
+            </div>
         </>
     );
-}
+};
 
 export default ProductDetail;
