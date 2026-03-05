@@ -8,124 +8,73 @@ const QUICK_REPLIES = [
     'Do you offer home delivery?',
     'How to choose the right paint?',
 ];
-
 const BOT_AVATAR = '🎨';
 
 const TypingIndicator = () => (
     <div className="chat-msg bot">
         <div className="chat-avatar">{BOT_AVATAR}</div>
         <div className="chat-bubble typing-bubble">
-            <span className="dot"></span>
-            <span className="dot"></span>
-            <span className="dot"></span>
+            <span className="dot"></span><span className="dot"></span><span className="dot"></span>
         </div>
     </div>
 );
 
 const Chatbot = () => {
-    const { url, token } = useContext(AppContext);
-    console.log(url);
-    const [open, setOpen] = useState(false);
-    const [messages, setMessages] = useState([
-        {
-            id: 1,
-            from: 'bot',
-            text: "Hi! 👋 I'm the Ajmera Paints assistant. I can help you with product queries, order info, paint recommendations, and more. How can I help you today?",
-            time: new Date(),
-        },
-    ]);
-    const [input, setInput] = useState('');
+    const { url, token } = useContext(AppContext); // ← url from context
+    const [open,     setOpen]     = useState(false);
+    const [messages, setMessages] = useState([{
+        id: 1, from: 'bot', time: new Date(),
+        text: "Hi! 👋 I'm the Ajmera Paints assistant. I can help you with product queries, order info, paint recommendations, and more. How can I help you today?",
+    }]);
+    const [input,   setInput]   = useState('');
     const [loading, setLoading] = useState(false);
-    const [unread, setUnread] = useState(0);
+    const [unread,  setUnread]  = useState(0);
     const bottomRef = useRef(null);
-    const inputRef = useRef(null);
+    const inputRef  = useRef(null);
 
     useEffect(() => {
-        if (open) {
-            setUnread(0);
-            setTimeout(() => inputRef.current?.focus(), 100);
-        }
+        if (open) { setUnread(0); setTimeout(() => inputRef.current?.focus(), 100); }
     }, [open]);
-
-    useEffect(() => {
-        bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [messages, loading]);
+    useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages, loading]);
 
     const sendMessage = async (text) => {
         const trimmed = (text || input).trim();
         if (!trimmed || loading) return;
-
-        const userMsg = { id: Date.now(), from: 'user', text: trimmed, time: new Date() };
-        setMessages(prev => [...prev, userMsg]);
+        setMessages(prev => [...prev, { id: Date.now(), from: 'user', text: trimmed, time: new Date() }]);
         setInput('');
         setLoading(true);
-
         try {
-            const res = await fetch(`https://paint-store-alpha.vercel.app/api/chat/message`, {
+            const res = await fetch(`${url}/chat/message`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    ...(token ? { Auth: token } : {}),
-                },
+                headers: { 'Content-Type': 'application/json', ...(token ? { Auth: token } : {}) },
                 credentials: 'include',
                 body: JSON.stringify({ message: trimmed }),
             });
-
             const data = await res.json();
-            const botMsg = {
-                id: Date.now() + 1,
-                from: 'bot',
+            setMessages(prev => [...prev, {
+                id: Date.now() + 1, from: 'bot', time: new Date(),
                 text: data.reply || "Sorry, I couldn't understand that. Please try again.",
-                time: new Date(),
-            };
-            setMessages(prev => [...prev, botMsg]);
+            }]);
             if (!open) setUnread(u => u + 1);
         } catch {
             setMessages(prev => [...prev, {
-                id: Date.now() + 1,
-                from: 'bot',
+                id: Date.now() + 1, from: 'bot', time: new Date(),
                 text: "I'm having trouble connecting right now. Please try again in a moment.",
-                time: new Date(),
             }]);
-        } finally {
-            setLoading(false);
-        }
+        } finally { setLoading(false); }
     };
 
-    const handleKey = (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            sendMessage();
-        }
-    };
-
-    const formatTime = (date) =>
-        date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-    const clearChat = () => {
-        setMessages([{
-            id: Date.now(),
-            from: 'bot',
-            text: "Chat cleared! How can I help you?",
-            time: new Date(),
-        }]);
-    };
+    const handleKey    = (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } };
+    const formatTime   = (d) => d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const clearChat    = () => setMessages([{ id: Date.now(), from: 'bot', text: "Chat cleared! How can I help you?", time: new Date() }]);
 
     return (
         <>
-            <button
-                className={`chatbot-fab ${open ? 'fab-open' : ''}`}
-                onClick={() => setOpen(o => !o)}
-                aria-label="Open chat"
-            >
-                {open ? (
-                    <span className="material-symbols-outlined" style={{ fontSize: '1.4rem' }}>close</span>
-                ) : (
-                    <>
-                        <span className="fab-icon">💬</span>
-                        {unread > 0 && <span className="fab-badge">{unread}</span>}
-                    </>
-                )}
+            <button className={`chatbot-fab ${open ? 'fab-open' : ''}`} onClick={() => setOpen(o => !o)} aria-label="Open chat">
+                {open
+                    ? <span className="material-symbols-outlined" style={{ fontSize: '1.4rem' }}>close</span>
+                    : <><span className="fab-icon">💬</span>{unread > 0 && <span className="fab-badge">{unread}</span>}</>
+                }
             </button>
 
             {open && (
@@ -154,9 +103,7 @@ const Chatbot = () => {
                     <div className="chatbot-messages">
                         {messages.map((msg) => (
                             <div key={msg.id} className={`chat-msg ${msg.from}`}>
-                                {msg.from === 'bot' && (
-                                    <div className="chat-avatar">{BOT_AVATAR}</div>
-                                )}
+                                {msg.from === 'bot' && <div className="chat-avatar">{BOT_AVATAR}</div>}
                                 <div className="chat-bubble-wrap">
                                     <div className="chat-bubble">{msg.text}</div>
                                     <div className="chat-time">{formatTime(msg.time)}</div>
@@ -170,33 +117,17 @@ const Chatbot = () => {
                     {messages.length === 1 && (
                         <div className="chatbot-quick-replies">
                             {QUICK_REPLIES.map((q) => (
-                                <button
-                                    key={q}
-                                    className="quick-reply-btn"
-                                    onClick={() => sendMessage(q)}
-                                >
-                                    {q}
-                                </button>
+                                <button key={q} className="quick-reply-btn" onClick={() => sendMessage(q)}>{q}</button>
                             ))}
                         </div>
                     )}
 
                     <div className="chatbot-input-row">
-                        <textarea
-                            ref={inputRef}
-                            className="chatbot-input"
-                            value={input}
-                            onChange={(e) => setInput(e.target.value)}
-                            onKeyDown={handleKey}
-                            placeholder="Type a message..."
-                            rows={1}
-                            disabled={loading}
-                        />
-                        <button
-                            className={`chatbot-send-btn ${input.trim() ? 'active' : ''}`}
-                            onClick={() => sendMessage()}
-                            disabled={!input.trim() || loading}
-                        >
+                        <textarea ref={inputRef} className="chatbot-input" value={input}
+                            onChange={(e) => setInput(e.target.value)} onKeyDown={handleKey}
+                            placeholder="Type a message..." rows={1} disabled={loading} />
+                        <button className={`chatbot-send-btn ${input.trim() ? 'active' : ''}`}
+                            onClick={() => sendMessage()} disabled={!input.trim() || loading}>
                             <span className="material-symbols-outlined" style={{ fontSize: '1.15rem' }}>send</span>
                         </button>
                     </div>
