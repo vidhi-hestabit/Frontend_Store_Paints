@@ -4,8 +4,9 @@ import axios from 'axios';
 import { toast, Bounce } from "react-toastify";
 
 const AppState = (props) => {
-    const url = import.meta.env.VITE_API_URL?.replace(/\/$/, '') + '/api';
-    // const url = "http://localhost:5000/api";
+    // const url = import.meta.env.VITE_API_URL+'/api';
+    const url = "https://paint-store-alpha.vercel.app/api";
+    console.log("API URL:", url);
     const [products, setProducts] = useState([]);
     const [token, setToken] = useState('');
     const [isAuthenticated, setIsAuthenticated] = useState(false);
